@@ -1,0 +1,235 @@
+/* =========================================================================
+   Glasschat v1.1 — WhatsApp Web restyle layer.
+   Built against WhatsApp Web's 2026 layout: data-testid hooks + its WDS color
+   variables. Variables below are set live by preload.js on <html>.
+   ========================================================================= */
+
+:root {
+  --gx-top: 42px;
+  --gx-tint-rgb: 11, 18, 32;
+  --gx-alpha: .5;
+  --gx-blur: 22px;
+  --gx-accent: #2ee6b0;
+  --gx-accent-rgb: 46, 230, 176;
+  --gx-on-accent: #04110c;
+  --gx-radius: 16px;
+  --gx-wall: none;
+  --gx-wall-dim: .35;
+  --gx-doodle: .04;
+  --gx-font: inherit;
+  --gx-panel: rgba(var(--gx-tint-rgb), var(--gx-alpha));
+  --gx-panel-strong: rgba(var(--gx-tint-rgb), min(1, calc(var(--gx-alpha) + .22)));
+  --gx-panel-soft: rgba(var(--gx-tint-rgb), calc(var(--gx-alpha) * .6));
+  --gx-elev: color-mix(in srgb, rgb(var(--gx-tint-rgb)) 90%, #ffffff 10%);
+  --gx-line: rgba(255, 255, 255, .07);
+  --gx-hover: rgba(255, 255, 255, .05);
+  --gx-bubble-out: color-mix(in srgb, var(--gx-accent) 30%, rgb(var(--gx-tint-rgb)));
+  --gx-bubble-in: color-mix(in srgb, #ffffff 8%, rgb(var(--gx-tint-rgb)));
+}
+html.gx-light {
+  --gx-line: rgba(0, 0, 0, .07);
+  --gx-hover: rgba(0, 0, 0, .04);
+  --gx-elev: color-mix(in srgb, rgb(var(--gx-tint-rgb)) 70%, #ffffff 30%);
+  --gx-bubble-out: color-mix(in srgb, var(--gx-accent) 22%, #ffffff);
+  --gx-bubble-in: rgba(255, 255, 255, .92);
+}
+
+/* ---------- layout: room for the Glasschat top bar ---------- */
+html, body { height: 100% !important; overflow: hidden !important; }
+#app {
+  position: fixed !important;
+  top: var(--gx-top) !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+  height: auto !important; width: auto !important;
+}
+
+/* ---------- accent: replace WhatsApp green everywhere it's a brand color ---------- */
+body, #app {
+  --WDS-persistent-always-branded: var(--gx-accent) !important;
+  --WDS-persistent-activity-indicator: var(--gx-accent) !important;
+  --WDS-green-400: var(--gx-accent) !important;
+  --WDS-green-450: var(--gx-accent) !important;
+  --WDS-green-500: var(--gx-accent) !important;
+  --WDS-emerald-400: var(--gx-accent) !important;
+  --WDS-content-external-link: var(--gx-accent) !important;
+  --WDS-accent: var(--gx-accent) !important;
+  --WDS-content-action-emphasized: var(--gx-accent) !important;
+  --text-action: var(--gx-accent) !important;
+  --icon-high-emphasis: var(--gx-accent) !important;
+  --icon-primary: var(--gx-accent) !important;
+  --unread-marker-background: var(--gx-accent) !important;
+  --chat-bubble-border-radius: var(--gx-radius) !important;
+}
+
+/* ---------- glass mode ---------- */
+html.gx-glass, html.gx-glass body, html.gx-glass #app, html.gx-glass #app > div,
+html.gx-glass #app div:has(#side) {
+  background: transparent !important; background-color: transparent !important;
+}
+html.gx-glass body, html.gx-glass #app {
+  --WDS-systems-chat-background-wallpaper: transparent !important;
+  --WDS-surface-default: var(--gx-panel-soft) !important;
+  --WDS-background-wash-plain: transparent !important;
+  --WDS-background-wash-inset: rgba(var(--gx-tint-rgb), .45) !important;
+  --WDS-surface-emphasized: var(--gx-elev) !important;
+  --WDS-surface-elevated-default: var(--gx-elev) !important;
+  --WDS-background-elevated-wash-plain: var(--gx-elev) !important;
+  --WDS-background-elevated-wash-inset: var(--gx-elev) !important;
+  --WDS-components-surface-nav-bar: var(--gx-panel-strong) !important;
+  --navbar-background: var(--gx-panel-strong) !important;
+  --WDS-systems-bubble-surface-incoming: var(--gx-bubble-in) !important;
+  --WDS-systems-bubble-surface-outgoing: var(--gx-bubble-out) !important;
+  --WDS-surface-highlight: var(--gx-hover) !important;
+}
+
+/* chat list column */
+html.gx-glass #app div:has(> #side) {
+  background: var(--gx-panel) !important;
+  backdrop-filter: blur(var(--gx-blur)) saturate(150%);
+  border-right: 1px solid var(--gx-line) !important;
+}
+html.gx-glass #side, html.gx-glass #pane-side, html.gx-glass #side > div,
+html.gx-glass #side header, html.gx-glass #app header[data-testid="chatlist-header"] { background: transparent !important; }
+/* left icon rail */
+html.gx-glass #app header[data-testid="chatlist-header"]:not(:has(h1, [title])) ,
+html.gx-glass #app header:has(> div > div > [data-navbar-item]) {
+  background: var(--gx-panel-strong) !important;
+  backdrop-filter: blur(var(--gx-blur));
+  border-right: 1px solid var(--gx-line) !important;
+}
+
+/* conversation */
+html.gx-glass #main { background: rgba(var(--gx-tint-rgb), calc(var(--gx-alpha) * .35)) !important; }
+html.gx-glass #main [data-testid="conversation-panel-body"],
+html.gx-glass #main [data-testid="conversation-panel-messages"] { background: transparent !important; }
+[data-testid="conversation-background-default_chat_wallpaper"] { opacity: var(--gx-doodle) !important; }
+html.gx-glass #main header, html.gx-glass [data-testid="conversation-header"] {
+  background: var(--gx-panel-soft) !important;
+  backdrop-filter: blur(var(--gx-blur)) saturate(150%);
+  border-bottom: 1px solid var(--gx-line) !important;
+}
+html.gx-glass #main footer {
+  background: var(--gx-panel-soft) !important;
+  backdrop-filter: blur(var(--gx-blur)) saturate(150%);
+  border-top: 1px solid var(--gx-line) !important;
+}
+html.gx-glass #main footer div:has(> div > [data-testid="conversation-compose-box-input"]),
+html.gx-glass #main footer div:has(> div > div > [data-testid="conversation-compose-box-input"]) {
+  background: rgba(var(--gx-tint-rgb), min(1, calc(var(--gx-alpha) + .25))) !important;
+  border: 1px solid var(--gx-line) !important;
+  border-radius: calc(var(--gx-radius) + 6px) !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .12);
+}
+/* right-side drawers (contact info, starred, search…) */
+html.gx-glass #app div:has(> #main) ~ div:not(:empty) {
+  background: var(--gx-panel) !important;
+  backdrop-filter: blur(var(--gx-blur)) saturate(150%);
+  border-left: 1px solid var(--gx-line) !important;
+}
+
+/* ---------- custom wallpaper ---------- */
+html.gx-wall #main {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, var(--gx-wall-dim)), rgba(0, 0, 0, var(--gx-wall-dim))),
+    var(--gx-wall) !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+html.gx-light.gx-wall #main {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, var(--gx-wall-dim)), rgba(255, 255, 255, var(--gx-wall-dim))),
+    var(--gx-wall) !important;
+}
+
+/* ---------- bubbles ---------- */
+#main [data-testid="msg-container"], #main [data-testid="msg-container"] > div:first-child {
+  border-radius: var(--gx-radius) !important;
+}
+#main [data-testid="tail-in"], #main [data-testid="tail-out"] { display: none !important; }
+html.gx-glass #main [data-testid="msg-container"] > div:first-child {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .05) inset, 0 6px 20px rgba(0, 0, 0, .10) !important;
+}
+html.gx-light #main [data-testid="msg-container"] > div:first-child {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 6px 18px rgba(20, 30, 50, .06) !important;
+}
+
+/* ---------- chat list polish ---------- */
+#pane-side [role="row"] [aria-selected] { border-radius: calc(var(--gx-radius) - 4px) !important; margin: 0 8px !important; transition: background-color .12s; }
+#pane-side [role="row"] [aria-selected]:hover { background-color: var(--gx-hover) !important; }
+#pane-side [role="row"] [aria-selected="true"], #pane-side [role="row"] [aria-selected="true"]:hover {
+  background-color: rgba(var(--gx-accent-rgb), .16) !important;
+  box-shadow: inset 3px 0 0 var(--gx-accent);
+}
+::selection { background: rgba(var(--gx-accent-rgb), .35); }
+
+/* slim scrollbars */
+#app ::-webkit-scrollbar { width: 7px !important; height: 7px !important; }
+#app ::-webkit-scrollbar-thumb { background: rgba(127, 127, 127, .32) !important; border-radius: 8px; }
+#app ::-webkit-scrollbar-thumb:hover { background: rgba(127, 127, 127, .5) !important; }
+#app ::-webkit-scrollbar-track { background: transparent !important; }
+
+/* ---------- typography ---------- */
+html.gx-font body, html.gx-font #app {
+  --font-family-default: var(--gx-font) !important;
+  --font-family-segoe: var(--gx-font) !important;
+  --body-font-family: var(--gx-font) !important;
+  --text-input-field-font-family: var(--gx-font) !important;
+  --text-input-label-font-family: var(--gx-font) !important;
+}
+html.gx-font body, html.gx-font #app, html.gx-font #app *:not(code):not(pre):not(svg):not(path),
+html.gx-font #app [contenteditable] * {
+  font-family: var(--gx-font) !important;
+}
+html.gx-font #app code, html.gx-font #app pre { font-family: "Cascadia Mono", Consolas, monospace !important; }
+html.gx-font #app { font-feature-settings: "cv11", "ss03"; -webkit-font-smoothing: antialiased; }
+html.gx-msgsize #main [data-testid="msg-container"] .selectable-text,
+html.gx-msgsize #main [data-testid="msg-container"] [data-testid="selectable-text"],
+html.gx-msgsize #main footer [contenteditable] {
+  font-size: var(--gx-msg-size) !important; line-height: 1.45 !important;
+}
+
+/* =================== built-in extensions (toggled by class) =================== */
+
+/* Privacy blur */
+html.gx-privacy #pane-side [data-testid="cell-frame-container"],
+html.gx-privacy #main [data-testid="msg-container"],
+html.gx-privacy [data-testid="conversation-info-header"],
+html.gx-privacy [data-testid="conversation-header-avatar"] {
+  filter: blur(7px); transition: filter .18s ease;
+}
+html.gx-privacy #pane-side [data-testid="cell-frame-container"]:hover,
+html.gx-privacy #main [data-testid="msg-container"]:hover,
+html.gx-privacy [data-testid="conversation-header"]:hover [data-testid="conversation-info-header"],
+html.gx-privacy [data-testid="conversation-header"]:hover [data-testid="conversation-header-avatar"] { filter: none; }
+
+/* Focus mode */
+html.gx-focus #app div:has(> #side) { display: none !important; }
+
+/* Wide chat */
+html.gx-wide #main [data-testid="msg-container"] { max-width: min(92%, 1200px) !important; }
+html.gx-wide #main [role="row"] div:has(> [data-testid="msg-container"]) { max-width: none !important; }
+
+/* Compact bubbles */
+html.gx-compact body, html.gx-compact #app {
+  --chat-bubble-padding-vertical: 3px !important;
+  --chat-bubble-padding-horizontal: 8px !important;
+}
+
+/* Hide profile pictures */
+html.gx-noavatar #pane-side img, html.gx-noavatar [data-testid="conversation-header-avatar"] img,
+html.gx-noavatar #main [data-testid="msg-container"] ~ div img[draggable] { visibility: hidden !important; }
+
+/* Hide message previews */
+html.gx-nopreview #pane-side [data-testid="cell-frame-secondary"] > div:first-child { visibility: hidden !important; }
+
+/* Squircle avatars */
+html.gx-squircle #pane-side img, html.gx-squircle [data-testid="conversation-header-avatar"] img,
+html.gx-squircle #pane-side [data-testid="cell-frame-container"] div:has(> img),
+html.gx-squircle [data-testid="conversation-header-avatar"] div:has(> img) { border-radius: 32% !important; }
+
+/* Message animations */
+@keyframes gxIn { from { opacity: .0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+html.gx-anim #main [data-testid="msg-container"] { animation: gxIn .2s cubic-bezier(.2, .8, .2, 1) both; }
+@media (prefers-reduced-motion: reduce) { html.gx-anim #main [data-testid="msg-container"] { animation: none; } }
+
+/* App lock: hide everything underneath */
+html.gx-locked #app { filter: blur(40px) saturate(.6) !important; pointer-events: none !important; }

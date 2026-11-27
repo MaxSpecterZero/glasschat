@@ -1,0 +1,90 @@
+{
+  "name": "glasschat",
+  "productName": "Glasschat",
+  "version": "1.1.0",
+  "description": "A fast, glass-styled Windows desktop client for WhatsApp Web: one-click original-quality file sending, themes, fonts, app lock, scheduling and extensions.",
+  "main": "src/main.js",
+  "author": "MaxSpecterZero",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://maxspecterzero.github.io/glasschat/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MaxSpecterZero/glasschat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MaxSpecterZero/glasschat/issues"
+  },
+  "keywords": [
+    "whatsapp",
+    "whatsapp-web",
+    "electron",
+    "desktop",
+    "windows",
+    "acrylic",
+    "glassmorphism",
+    "messenger"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/build-fonts.js",
+    "start": "electron .",
+    "selftest": "electron . --selftest",
+    "showcase": "electron . --showcase",
+    "icon": "node scripts/make-icon.js",
+    "fonts": "node scripts/build-fonts.js",
+    "check": "node --check src/main.js && node --check src/preload.js && node --check scripts/build-fonts.js && node --check scripts/make-icon.js",
+    "dist": "electron-builder --win nsis portable --publish never",
+    "release": "electron-builder --win nsis portable --publish always"
+  },
+  "devDependencies": {
+    "@fontsource-variable/figtree": "^5.1.0",
+    "@fontsource-variable/inter": "^5.1.0",
+    "@fontsource-variable/manrope": "^5.1.0",
+    "@fontsource-variable/outfit": "^5.1.0",
+    "@fontsource-variable/plus-jakarta-sans": "^5.1.0",
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "app.glasschat.desktop",
+    "productName": "Glasschat",
+    "copyright": "Copyright (c) Glasschat contributors. Unofficial WhatsApp Web client.",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "build/icon.png"
+    ],
+    "asar": true,
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "MaxSpecterZero",
+        "repo": "glasschat",
+        "releaseType": "release"
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Glasschat",
+      "artifactName": "Glasschat-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Glasschat-Portable-${version}.${ext}"
+    }
+  }
+}

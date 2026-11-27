@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glasschat showcase</title>
+<!-- Demo backdrop for README / website screenshots. All names and messages are invented. -->
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; }
+  body { font: 14.5px/1.45 system-ui, sans-serif; color: #e9edef; }
+  body:not(.dark) { color: #111b21; color-scheme: light; }
+  #wall { position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(900px 600px at 8% 12%, #1f6f8b 0%, transparent 60%),
+      radial-gradient(800px 700px at 92% 18%, #5b2bb5 0%, transparent 62%),
+      radial-gradient(900px 700px at 70% 100%, #0f9e78 0%, transparent 60%),
+      linear-gradient(135deg, #0b1020, #121a33 50%, #0a1418); filter: saturate(115%); }
+  body:not(.dark) #wall { background:
+      radial-gradient(900px 600px at 8% 12%, #b8e6f5 0%, transparent 60%),
+      radial-gradient(800px 700px at 92% 18%, #dccbff 0%, transparent 62%),
+      radial-gradient(900px 700px at 70% 100%, #bff2df 0%, transparent 60%),
+      linear-gradient(135deg, #eef3fb, #f5f0ff 50%, #ecf9f4); }
+  .shell { display: flex; height: 100%; }
+  .muted { opacity: .62; }
+  svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .rail { width: 64px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 0; flex: none; }
+  .rail .ri { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; opacity: .8; }
+  .rail .ri.on { background: rgba(255,255,255,.1); opacity: 1; }
+  body:not(.dark) .rail .ri.on { background: rgba(0,0,0,.07); }
+  .rail .sp { flex: 1; }
+  .me { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#7aa2ff,#b78cff); }
+  .sidecol { width: 400px; flex: none; display: flex; }
+  #side { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .side-head { display: flex; align-items: center; padding: 16px 18px 8px; gap: 10px; }
+  .side-head h1 { font-size: 22px; margin: 0; flex: 1; font-weight: 700; letter-spacing: -.02em; }
+  .search { margin: 6px 14px 8px; padding: 9px 14px; border-radius: 22px; background: rgba(255,255,255,.07); display: flex; gap: 10px; align-items: center; }
+  body:not(.dark) .search { background: rgba(0,0,0,.05); }
+  .chips { display: flex; gap: 8px; padding: 4px 14px 10px; }
+  .chip { padding: 5px 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,.14); font-size: 13.5px; }
+  body:not(.dark) .chip { border-color: rgba(0,0,0,.12); }
+  .chip.on { background: rgba(var(--gx-accent-rgb, 37,211,102), .22); border-color: transparent; color: var(--gx-accent, #25d366); font-weight: 600; }
+  #pane-side { flex: 1; overflow: hidden; padding: 0 0 8px; }
+  .cell { display: flex; gap: 12px; align-items: center; padding: 11px 12px; }
+  .av { width: 48px; height: 48px; border-radius: 50%; flex: none; display: grid; place-items: center; font-weight: 700; color: #fff; font-size: 16px; }
+  .cell .txt { flex: 1; min-width: 0; }
+  .line { display: flex; gap: 8px; align-items: baseline; }
+  .line .t { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 15.5px; }
+  .line .time { font-size: 12px; opacity: .6; }
+  .line .time.u { color: var(--WDS-persistent-always-branded, #25d366); opacity: 1; font-weight: 600; }
+  .line .p { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13.5px; opacity: .66; }
+  .badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--WDS-persistent-always-branded, #25d366); color: #06281c; font-size: 11.5px; font-weight: 700; display: grid; place-items: center; }
+  .maincol { flex: 1; display: flex; min-width: 0; }
+  #main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  #main > header { display: flex; align-items: center; gap: 12px; padding: 10px 18px; height: 64px; box-sizing: border-box; }
+  #main > header .info { flex: 1; min-width: 0; }
+  #main > header .name { font-weight: 650; font-size: 16px; }
+  #main > header small { display: block; font-size: 12.5px; opacity: .62; }
+  #main > header .hi { display: flex; gap: 18px; opacity: .8; }
+  .body { flex: 1; overflow: hidden; padding: 18px 9% 10px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; }
+  .day { align-self: center; font-size: 12px; padding: 5px 12px; border-radius: 8px; background: rgba(0,0,0,.28); margin: 8px 0; }
+  body:not(.dark) .day { background: rgba(255,255,255,.75); }
+  [role="row"].m { display: flex; }
+  [role="row"].m.out { justify-content: flex-end; }
+  [data-testid="msg-container"] { max-width: 62%; }
+  .bubble { padding: 7px 10px 6px; border-radius: 10px; font-size: 14.5px; position: relative; }
+  .in .bubble { background: var(--WDS-systems-bubble-surface-incoming, #202c33); }
+  .out .bubble { background: var(--WDS-systems-bubble-surface-outgoing, #005c4b); }
+  .bubble .who { font-size: 12.5px; font-weight: 650; margin-bottom: 2px; }
+  .bubble .meta { float: right; font-size: 11px; opacity: .6; margin: 6px 0 -4px 12px; }
+  .bubble .ticks { color: #53bdeb; }
+  .docb { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 8px; background: rgba(0,0,0,.18); margin-bottom: 4px; min-width: 280px; }
+  body:not(.dark) .docb { background: rgba(0,0,0,.05); }
+  .bubble::after { content: ""; display: block; clear: both; }
+  .docb .ic { width: 38px; height: 46px; border-radius: 6px; background: #e5484d; color: #fff; font: 700 10px/46px system-ui; text-align: center; }
+  .docb b { display: block; font-size: 14px; }
+  .docb small { opacity: .65; font-size: 12px; }
+  .img { width: 300px; height: 190px; border-radius: 8px; margin-bottom: 4px;
+    background: radial-gradient(120px 90px at 30% 70%, #ffd36e, transparent 70%), radial-gradient(160px 120px at 75% 30%, #ff7ab6, transparent 70%), linear-gradient(135deg, #3a86ff, #8338ec); }
+    footer { padding: 10px 16px 12px; }
+  .composer { display: flex; align-items: center; gap: 6px; }
+  .pill { flex: 1; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 26px; background: rgba(255,255,255,.08); }
+  body:not(.dark) .pill { background: #fff; }
+  .pill button, .composer > button { border: 0; background: none; color: inherit; width: 38px; height: 38px; display: grid; place-items: center; opacity: .8; }
+  [data-testid="conversation-compose-box-input"] { flex: 1; outline: none; padding: 8px 2px; min-height: 22px; }
+  [data-testid="conversation-compose-box-input"]:empty::before { content: "Type a message"; opacity: .5; }
+  .send { width: 46px; height: 46px; border-radius: 50%; background: var(--gx-accent, #25d366) !important; color: var(--gx-on-accent, #06281c); display: grid; place-items: center; opacity: 1 !important; }
+</style>
+</head>
+<body class="dark">
+<div id="wall"></div>
+<div id="app"><div class="shell">
+
+  <header class="rail" data-testid="chatlist-header" aria-label="Navigation">
+    <div class="ri on"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></div>
+    <div class="ri"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></div>
+    <div class="ri"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></div>
+    <div class="ri"><svg viewBox="0 0 24 24"><path d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M21 20v-2a4 4 0 0 0-3-3.9"/></svg></div>
+    <div class="sp"></div>
+    <div class="ri"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></div>
+    <div class="me"></div>
+  </header>
+
+  <div class="sidecol"><div id="side">
+    <div class="side-head"><h1>Chats</h1><svg viewBox="0 0 24 24" class="muted"><path d="M12 5v14M5 12h14"/></svg></div>
+    <div class="search"><svg viewBox="0 0 24 24" class="muted"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span class="muted">Search or start a new chat</span></div>
+    <div class="chips"><span class="chip on">All</span><span class="chip">Unread</span><span class="chip">Favorites</span><span class="chip">Groups</span></div>
+    <div id="pane-side" role="grid">
+      <div role="row"><div role="gridcell"><div aria-selected="true"><div data-testid="cell-frame-container" class="cell">
+        <div class="av" style="background:linear-gradient(135deg,#ff8a3d,#ff3d77)">DT</div>
+        <div class="txt"><div class="line"><span class="t" data-testid="cell-frame-title"><span title="Design Team">Design Team</span></span><span class="time">10:48 AM</span></div>
+        <div class="line" data-testid="cell-frame-secondary"><div class="p">You: Season-poster-final.pdf</div></div></div></div></div></div></div>
+      <div role="row"><div role="gridcell"><div aria-selected="false"><div data-testid="cell-frame-container" class="cell">
+        <div class="av" style="background:linear-gradient(135deg,#36b9ff,#6a7bff)">S</div>
+        <div class="txt"><div class="line"><span class="t" data-testid="cell-frame-title"><span title="Sarah">Sarah</span></span><span class="time u">10:31 AM</span></div>
+        <div class="line" data-testid="cell-frame-secondary"><div class="p">Can you send the original file, not the compressed one?</div><span class="badge">2</span></div></div></div></div></div></div>
+      <div role="row"><div role="gridcell"><div aria-selected="false"><div data-testid="cell-frame-container" class="cell">
+        <div class="av" style="background:linear-gradient(135deg,#2ee6b0,#0f9e78)">SS</div>
+        <div class="txt"><div class="line"><span class="t" data-testid="cell-frame-title"><span title="Sunday Soccer">Sunday Soccer</span></span><span class="time u">9:55 AM</span></div>
+        <div class="line" data-testid="cell-frame-secondary"><div class="p">Tyler: Sunday at 6 PM, same field ⚽</div><span class="badge">5</span></div></div></div></div></div></div>
+      <div role="row"><div role="gridcell"><div aria-selected="false"><div data-testid="cell-frame-container" class="cell">
+        <div class="av" style="background:linear-gradient(135deg,#b78cff,#7c4ddb)">SC</div>
+        <div class="txt"><div class="line"><span class="t" data-testid="cell-frame-title"><span title="Studio Clients">Studio Clients</span></span><span class="time">Yesterday</span></div>
+        <div class="line" data-testid="cell-frame-secondary"><div class="p">Megan: Approved, thank you! 🙌</div></div></div></div></div></div></div>
+      <div role="row"><div role="gridcell"><div aria-selected="false"><div data-testid="cell-frame-container" class="cell">
+        <div class="av" style="background:linear-gradient(135deg,#7ed957,#3f9a1f)">J</div>
+        <div class="txt"><div class="line"><span class="t" data-testid="cell-frame-title"><span title="Jordan">Jordan</span></span><span class="time">Yesterday</span></div>
+        <div class="line" data-testid="cell-frame-secondary"><div class="p">Got the files, thanks! 👍</div></div></div></div></div></div></div>
+      <div role="row"><div role="gridcell"><div aria-selected="false"><div data-testid="cell-frame-container" class="cell">
+        <div class="av" style="background:linear-gradient(135deg,#ffd36e,#ff8a3d)">PS</div>
+        <div class="txt"><div class="line"><span class="t" data-testid="cell-frame-title"><span title="Print Shop">Print Shop</span></span><span class="time">Tuesday</span></div>
+        <div class="line" data-testid="cell-frame-secondary"><div class="p">Banners are ready for pickup</div></div></div></div></div></div></div>
+      <div role="row"><div role="gridcell"><div aria-selected="false"><div data-testid="cell-frame-container" class="cell">
+        <div class="av" style="background:linear-gradient(135deg,#dfe5ea,#5f6b76)">A</div>
+        <div class="txt"><div class="line"><span class="t" data-testid="cell-frame-title"><span title="Alex">Alex</span></span><span class="time">Monday</span></div>
+        <div class="line" data-testid="cell-frame-secondary"><div class="p">🎤 Voice message (0:42)</div></div></div></div></div></div></div>
+      <div role="row"><div role="gridcell"><div aria-selected="false"><div data-testid="cell-frame-container" class="cell">
+        <div class="av" style="background:linear-gradient(135deg,#ff6fa5,#d63f7a)">G</div>
+        <div class="txt"><div class="line"><span class="t" data-testid="cell-frame-title"><span title="Gym crew">Gym crew</span></span><span class="time">Sunday</span></div>
+        <div class="line" data-testid="cell-frame-secondary"><div class="p">Who's in for 7 AM tomorrow?</div></div></div></div></div></div></div>
+    </div>
+  </div></div>
+
+  <div class="maincol"><div id="main">
+    <header data-testid="conversation-header">
+      <div data-testid="conversation-header-avatar"><div class="av" style="width:40px;height:40px;font-size:14px;background:linear-gradient(135deg,#ff8a3d,#ff3d77)">DT</div></div>
+      <div class="info" data-testid="conversation-info-header"><div class="name" data-testid="conversation-info-header-chat-title">Design Team</div><small>Sarah, Tyler, Megan, You</small></div>
+      <div class="hi"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></svg><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
+    </header>
+    <div class="body" data-testid="conversation-panel-body">
+      <div class="day">Today</div>
+      <div role="row" class="m in"><div data-testid="msg-container"><div class="bubble"><div class="who" style="color:#ff9f6e">Sarah</div>Morning! Can we get the final poster before the 11 AM call? 🙏<span class="meta">10:21 AM</span></div></div></div>
+      <div role="row" class="m in"><div data-testid="msg-container"><div class="bubble"><div class="who" style="color:#6fd3ff">Tyler</div>And please send the full-resolution one, the print shop needs it.<span class="meta">10:22 AM</span></div></div></div>
+      <div role="row" class="m out"><div data-testid="msg-container"><div class="bubble">On it, exporting now ✨<span class="meta">10:30 AM <span class="ticks">✓✓</span></span></div></div></div>
+      <div role="row" class="m out"><div data-testid="msg-container"><div class="bubble"><div class="img"></div>Quick preview first<span class="meta">10:41 AM <span class="ticks">✓✓</span></span></div></div></div>
+      <div role="row" class="m out"><div data-testid="msg-container"><div class="bubble"><div class="docb"><div class="ic">PDF</div><div><b>Season-poster-final.pdf</b><small>24 MB · PDF · original quality</small></div></div>Dragged straight from Explorer, no compression 👌<span class="meta">10:48 AM <span class="ticks">✓✓</span></span></div></div></div>
+      <div role="row" class="m in"><div data-testid="msg-container"><div class="bubble"><div class="who" style="color:#b9a3ff">Megan</div>Perfect, sending it to print 🙌<span class="meta">10:49 AM</span></div></div></div>
+    </div>
+    <footer data-testid="compose-box">
+      <div class="composer">
+        <div class="pill">
+          <button aria-label="Attach"><svg viewBox="0 0 24 24"><path d="M21.4 11l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg></button>
+          <div><div data-testid="conversation-compose-box-input" contenteditable="true" role="textbox" spellcheck="false"></div></div>
+          <button aria-label="Emoji"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></button>
+        </div>
+        <button class="send" aria-label="Voice message"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      </div>
+    </footer>
+  </div></div>
+
+</div></div>
+</body>
+</html>

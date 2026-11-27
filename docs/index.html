@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glasschat — a glass desktop app for WhatsApp Web</title>
+<meta name="description" content="Glasschat is a free, open-source Windows desktop client for WhatsApp Web: send files in original quality with drag & drop, glass themes, beautiful fonts, app lock, scheduled messages and extensions.">
+<meta name="theme-color" content="#0b1020">
+<link rel="icon" type="image/png" href="assets/icon.png">
+<link rel="canonical" href="https://maxspecterzero.github.io/glasschat/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Glasschat — WhatsApp Web, in glass">
+<meta property="og:description" content="Free, open-source Windows client for WhatsApp Web with one-click original-quality file sending, glass themes, fonts, app lock and more.">
+<meta property="og:image" content="https://maxspecterzero.github.io/glasschat/assets/screens/01-main.png">
+<meta property="og:url" content="https://maxspecterzero.github.io/glasschat/">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  @font-face { font-family: "Inter"; src: url("assets/fonts/inter.woff2") format("woff2-variations"); font-weight: 100 900; font-display: swap; }
+
+  :root {
+    --bg: #070b17; --bg2: #0c1224; --card: rgba(255,255,255,.045); --card2: rgba(255,255,255,.07);
+    --line: rgba(255,255,255,.09); --fg: #eef3f8; --fg2: #aab6c6; --fg3: #7d8a9c;
+    --accent: #2ee6b0; --accent2: #6a7bff; --accent3: #b78cff; --on-accent: #04130d;
+    --radius: 18px; --max: 1160px;
+    --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px; --s5: 48px; --s6: 64px; --s7: 96px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 "Inter", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss03"; overflow-x: hidden; }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+  .wrap { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+  .glow { position: fixed; inset: -20vh -10vw auto; height: 120vh; z-index: -1; pointer-events: none;
+    background: radial-gradient(40vw 30vw at 15% 10%, rgba(46,230,176,.16), transparent 70%),
+                radial-gradient(40vw 30vw at 85% 0%, rgba(106,123,255,.18), transparent 70%),
+                radial-gradient(50vw 30vw at 60% 60%, rgba(183,140,255,.08), transparent 70%); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+  /* nav */
+  nav { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(18px) saturate(150%); background: rgba(7,11,23,.6); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; gap: var(--s3); height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 750; letter-spacing: -.02em; text-decoration: none; font-size: 18px; }
+  .brand img { width: 30px; height: 30px; }
+  nav .links { display: flex; gap: var(--s3); margin-left: auto; font-size: 14.5px; color: var(--fg2); }
+  nav .links a { text-decoration: none; } nav .links a:hover { color: var(--fg); }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 12px; font-weight: 650; text-decoration: none; font-size: 15px; border: 1px solid var(--line); background: var(--card); transition: transform .15s, background .15s, border-color .15s; white-space: nowrap; }
+  .btn:hover { transform: translateY(-1px); border-color: rgba(255,255,255,.2); background: var(--card2); }
+  .btn.primary { background: linear-gradient(135deg, var(--accent), #20c997); color: var(--on-accent); border: 0; box-shadow: 0 10px 30px rgba(46,230,176,.25); }
+  .btn.primary:hover { box-shadow: 0 14px 40px rgba(46,230,176,.35); }
+  .btn.sm { padding: 8px 14px; font-size: 14px; border-radius: 10px; }
+  .btn svg { width: 18px; height: 18px; }
+
+  /* hero */
+  .hero { padding: var(--s7) 0 var(--s6); text-align: center; }
+  .eyebrow { display: inline-flex; gap: 8px; align-items: center; padding: 6px 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--fg2); font-size: 13.5px; font-weight: 550; }
+  .eyebrow b { color: var(--accent); font-weight: 650; }
+  h1 { font-size: clamp(40px, 6.4vw, 76px); line-height: 1.02; letter-spacing: -.045em; margin: var(--s3) auto var(--s2); font-weight: 800; max-width: 900px; }
+  h1 .g { background: linear-gradient(120deg, var(--accent) 10%, var(--accent2) 55%, var(--accent3)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { font-size: clamp(17px, 2vw, 20px); color: var(--fg2); max-width: 680px; margin: 0 auto var(--s4); }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .meta { margin-top: var(--s2); color: var(--fg3); font-size: 13.5px; }
+  .shot { margin: var(--s6) auto 0; max-width: 1100px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 40px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.03), 0 0 120px rgba(106,123,255,.18); }
+  .shot .bar { height: 30px; background: rgba(255,255,255,.05); display: flex; align-items: center; gap: 7px; padding: 0 12px; border-bottom: 1px solid var(--line); }
+  .shot .bar i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.18); }
+  .caption { color: var(--fg3); font-size: 13px; margin-top: var(--s2); }
+
+  /* sections */
+  section { padding: var(--s7) 0 0; }
+  .kicker { color: var(--accent); font-weight: 700; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+  h2 { font-size: clamp(30px, 4vw, 46px); letter-spacing: -.035em; line-height: 1.1; margin: var(--s1) 0 var(--s2); font-weight: 780; }
+  .sub { color: var(--fg2); max-width: 640px; margin: 0 0 var(--s5); font-size: 17.5px; }
+  .center { text-align: center; } .center .sub { margin-left: auto; margin-right: auto; }
+
+  .split { display: grid; grid-template-columns: 1fr 1.2fr; gap: var(--s5); align-items: center; }
+  .ways { display: grid; gap: 12px; }
+  .way { display: flex; gap: var(--s2); align-items: flex-start; padding: var(--s2) 18px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+  .way .n { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(46,230,176,.13); color: var(--accent); }
+  .way .n svg { width: 18px; height: 18px; }
+  .way b { display: block; font-weight: 650; }
+  .way span { color: var(--fg2); font-size: 14.5px; }
+  kbd { font: 600 12px/1 "Cascadia Mono", Consolas, monospace; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--line); background: rgba(255,255,255,.06); color: var(--fg); white-space: nowrap; }
+  .frame { border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,.12); box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); }
+  .card { padding: var(--s3); border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); transition: border-color .2s, transform .2s; }
+  .card:hover { border-color: rgba(46,230,176,.35); transform: translateY(-2px); }
+  .card .ic { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; margin-bottom: var(--s2);
+    background: linear-gradient(135deg, rgba(46,230,176,.18), rgba(106,123,255,.18)); color: var(--accent); }
+  .card .ic svg { width: 22px; height: 22px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -.015em; }
+  .card p { margin: 0; color: var(--fg2); font-size: 15px; }
+  svg.i { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* themes */
+  .tabs { display: inline-flex; gap: 6px; padding: 5px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); margin-bottom: var(--s3); flex-wrap: wrap; justify-content: center; }
+  .tabs button { border: 0; background: transparent; color: var(--fg2); font: inherit; font-size: 14.5px; font-weight: 600; padding: 8px 16px; border-radius: 10px; cursor: pointer; display: flex; gap: 8px; align-items: center; }
+  .tabs button i { width: 12px; height: 12px; border-radius: 50%; }
+  .tabs button[aria-selected="true"] { background: rgba(255,255,255,.1); color: var(--fg); }
+  .theme-shot { max-width: 1000px; margin: 0 auto; }
+
+  /* gallery */
+  .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); }
+  .gallery figure { margin: 0; }
+  .gallery button { padding: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; cursor: zoom-in; background: none; width: 100%; transition: transform .2s, border-color .2s; }
+  .gallery button:hover { transform: translateY(-2px); border-color: rgba(46,230,176,.4); }
+  .gallery figcaption { color: var(--fg3); font-size: 13.5px; margin-top: 8px; }
+  dialog { border: 0; padding: 0; background: transparent; max-width: min(1300px, 94vw); }
+  dialog::backdrop { background: rgba(3,6,14,.85); backdrop-filter: blur(6px); }
+  dialog img { border-radius: 12px; max-height: 86vh; width: auto; margin: 0 auto; }
+  dialog p { text-align: center; color: var(--fg2); margin: 12px 0 0; }
+  dialog .x { position: fixed; top: 18px; right: 22px; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.08); color: #fff; font-size: 22px; cursor: pointer; }
+
+  /* steps + table */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); counter-reset: s; }
+  .step { padding: var(--s3); border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); counter-increment: s; }
+  .step::before { content: counter(s); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-weight: 800; margin-bottom: var(--s2); }
+  .step h3 { margin: 0 0 6px; font-size: 17px; } .step p { margin: 0; color: var(--fg2); font-size: 15px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  td { padding: 12px 6px; border-bottom: 1px solid var(--line); }
+  td:last-child { text-align: right; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--s5); }
+
+  details { border: 1px solid var(--line); border-radius: 14px; background: var(--card); padding: 0 var(--s3); margin-bottom: 10px; }
+  summary { cursor: pointer; padding: 18px 0; font-weight: 650; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+  summary::after { content: "+"; color: var(--accent); font-size: 20px; line-height: 1; }
+  details[open] summary::after { content: "–"; }
+  details p { margin: 0 0 18px; color: var(--fg2); }
+
+  .refs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .ref { display: block; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); text-decoration: none; }
+  .ref b { display: block; font-size: 15px; } .ref span { color: var(--fg3); font-size: 13.5px; }
+  .ref:hover { border-color: rgba(46,230,176,.35); }
+
+  .final { margin: var(--s7) 0 0; padding: var(--s6) var(--s4); border-radius: 26px; text-align: center; border: 1px solid var(--line);
+    background: radial-gradient(600px 300px at 20% 0%, rgba(46,230,176,.18), transparent 70%), radial-gradient(600px 300px at 90% 100%, rgba(106,123,255,.2), transparent 70%), var(--bg2); }
+  footer { padding: var(--s6) 0 var(--s5); color: var(--fg3); font-size: 13.5px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; }
+  footer a { color: var(--fg2); }
+
+  @media (max-width: 900px) {
+    .split, .cols { grid-template-columns: 1fr; }
+    .grid, .gallery, .refs { grid-template-columns: 1fr 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    nav .links { display: none; }
+    nav .btn.gh { margin-left: auto; }
+  }
+  @media (max-width: 560px) {
+    .grid, .gallery, .refs { grid-template-columns: 1fr; }
+    .hero { padding-top: var(--s6); }
+    nav .btn.gh { display: none; }
+    nav .btn.primary { margin-left: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<div class="glow" aria-hidden="true"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+  <symbol id="i-gh" viewBox="0 0 24 24"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><path d="M21.4 11l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-paste" viewBox="0 0 24 24"><path d="M9 2h6v4H9zM16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol>
+  <symbol id="i-snip" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.4A5.6 5.6 0 0 0 22 9.8C22 5.5 17.5 2 12 2z"/><path d="M7.5 10.5h.01M12 7.5h.01M16.5 10.5h.01"/></symbol>
+  <symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5M17 17H3s3-2 3-9a4.7 4.7 0 0 1 .3-1.7M10.3 21a1.9 1.9 0 0 0 3.4 0M2 2l20 20"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-cmd" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+  <symbol id="i-puzzle" viewBox="0 0 24 24"><path d="M19.4 14.9a2.5 2.5 0 1 0-3.5-3.5L14 9.5V5a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v1.5a2.5 2.5 0 1 1-5 0V5H2"/><path d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M17.9 17.9A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.1-5.9M9.9 4.2A9 9 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.2 3.2M1 1l22 22M14.1 14.1a3 3 0 1 1-4.2-4.2"/></symbol>
+  <symbol id="i-tray" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M13 12h6v5h-6z"/></symbol>
+</svg>
+
+<nav aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/icon.png" alt="" width="30" height="30">Glasschat</a>
+    <div class="links">
+      <a href="#send">Send originals</a><a href="#features">Features</a><a href="#themes">Themes</a><a href="#screens">Screens</a><a href="#faq">FAQ</a>
+    </div>
+    <a class="btn sm gh" href="https://github.com/MaxSpecterZero/glasschat"><svg class="i"><use href="#i-gh"/></svg>GitHub</a>
+    <a class="btn sm primary" href="https://github.com/MaxSpecterZero/glasschat/releases/latest"><svg class="i"><use href="#i-dl"/></svg>Download</a>
+  </div>
+</nav>
+
+<main id="top">
+  <header class="hero wrap">
+    <span class="eyebrow"><b>New</b> v1.1 · Free &amp; open source · Windows 10 / 11</span>
+    <h1>WhatsApp Web, <span class="g">in glass.</span></h1>
+    <p class="lead">A fast, beautiful desktop app for WhatsApp Web. Drop files and send them in <strong>original quality</strong>, make it look the way you like, and lock it when you step away.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/MaxSpecterZero/glasschat/releases/latest"><svg class="i"><use href="#i-dl"/></svg>Download for Windows</a>
+      <a class="btn" href="https://github.com/MaxSpecterZero/glasschat"><svg class="i"><use href="#i-gh"/></svg>View source on GitHub</a>
+    </div>
+    <p class="meta">Installer or portable exe · MIT license · No account, no tracking, no server</p>
+    <div class="shot">
+      <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+      <img src="assets/screens/01-main.png" width="1440" height="900" alt="Glasschat main window: glass chat list and conversation in the Aurora theme">
+    </div>
+    <p class="caption">Demo data — every name and message in these screenshots is invented.</p>
+  </header>
+
+  <section id="send" class="wrap">
+    <div class="split">
+      <div>
+        <div class="kicker">Send originals</div>
+        <h2>No more “Attach › Document” every single time.</h2>
+        <p class="sub">Photos and videos keep their full quality. Pick the way that suits you — they all hand the file straight to WhatsApp.</p>
+        <div class="ways">
+          <div class="way"><div class="n"><svg class="i"><use href="#i-drop"/></svg></div><div><b>Drag &amp; drop</b><span>Drop anywhere, choose <em>Document</em> or <em>Photo/Video</em> — or make Document the default.</span></div></div>
+          <div class="way"><div class="n"><svg class="i"><use href="#i-clip"/></svg></div><div><b>Send files button</b><span>One click in the top bar, or <kbd>Ctrl+Shift+D</kbd>.</span></div></div>
+          <div class="way"><div class="n"><svg class="i"><use href="#i-folder"/></svg></div><div><b>Right-click in Explorer</b><span><em>Send to › Glasschat</em> on any files.</span></div></div>
+          <div class="way"><div class="n"><svg class="i"><use href="#i-paste"/></svg></div><div><b>Paste</b><span>Paste an image and choose; <kbd>Ctrl+Shift+V</kbd> always sends a document.</span></div></div>
+          <div class="way"><div class="n"><svg class="i"><use href="#i-snip"/></svg></div><div><b>Snip &amp; send</b><span><kbd>Ctrl+Shift+S</kbd> — snip part of the screen and send it.</span></div></div>
+        </div>
+      </div>
+      <div class="frame"><img src="assets/screens/03-send-as-document.png" width="1440" height="900" loading="lazy" alt="Drop chooser with Send as Document and Send as Photo/Video options"></div>
+    </div>
+  </section>
+
+  <section id="features" class="wrap center">
+    <div class="kicker">Everything else</div>
+    <h2>Small things that make a big difference.</h2>
+    <p class="sub">Glasschat is the regular WhatsApp Web page with a new skin and power tools on top.</p>
+    <div class="grid" style="text-align:left">
+      <div class="card"><div class="ic"><svg class="i"><use href="#i-palette"/></svg></div><h3>Glass themes</h3><p>Windows 11 Acrylic, Mica or Tabbed backdrop, nine themes, any accent color, wallpaper, blur, opacity and corner radius.</p></div>
+      <div class="card"><div class="ic"><svg class="i"><use href="#i-type"/></svg></div><h3>Beautiful fonts</h3><p>Seven font choices — Inter, Segoe UI, Plus Jakarta, Figtree, Manrope, Outfit or WhatsApp's original.</p></div>
+      <div class="card"><div class="ic"><svg class="i"><use href="#i-lock"/></svg></div><h3>App lock</h3><p>A PIN screen at start, after you're idle, when minimized, or on <kbd>Ctrl+L</kbd>.</p></div>
+      <div class="card"><div class="ic"><svg class="i"><use href="#i-bell"/></svg></div><h3>Do not disturb</h3><p>Silence pop-ups now or on a daily schedule, optionally mute sounds, and hide message text in notifications.</p></div>
+      <div class="card"><div class="ic"><svg class="i"><use href="#i-clock"/></svg></div><h3>Schedule &amp; notes</h3><p>Send a message later and keep private notes per chat, stored only on your PC.</p></div>
+      <div class="card"><div class="ic"><svg class="i"><use href="#i-cmd"/></svg></div><h3>Command palette</h3><p><kbd>Ctrl+K</kbd> for every action, theme, font and quick reply. Quick replies on <kbd>Alt+1…9</kbd>.</p></div>
+      <div class="card"><div class="ic"><svg class="i"><use href="#i-eye"/></svg></div><h3>Privacy blur</h3><p>Chats and messages stay blurred until you hover — great for screen sharing and open offices.</p></div>
+      <div class="card"><div class="ic"><svg class="i"><use href="#i-tray"/></svg></div><h3>Lives in the tray</h3><p>Unread badge, mini floating window, always-on-top and a global <kbd>Ctrl+Alt+W</kbd> hotkey.</p></div>
+      <div class="card"><div class="ic"><svg class="i"><use href="#i-puzzle"/></svg></div><h3>Extensions</h3><p>Drop your own CSS or JS files into a folder and toggle them, or edit live Custom CSS.</p></div>
+    </div>
+  </section>
+
+  <section id="themes" class="wrap center">
+    <div class="kicker">Make it yours</div>
+    <h2>Nine themes. Light and dark.</h2>
+    <p class="sub">Glasschat follows WhatsApp's own light or dark setting and recolors everything to match your theme.</p>
+    <div class="tabs" role="tablist" aria-label="Themes">
+      <button role="tab" aria-selected="true" data-src="assets/screens/01-main.png" data-alt="Aurora theme"><i style="background:#2ee6b0"></i>Aurora</button>
+      <button role="tab" aria-selected="false" data-src="assets/screens/10-theme-rose.png" data-alt="Rosé theme"><i style="background:#ff6fa5"></i>Rosé</button>
+      <button role="tab" aria-selected="false" data-src="assets/screens/11-theme-midnight.png" data-alt="Midnight theme"><i style="background:#8b96ff"></i>Midnight</button>
+      <button role="tab" aria-selected="false" data-src="assets/screens/12-light-ocean.png" data-alt="Ocean theme in light mode"><i style="background:#36b9ff"></i>Ocean · light</button>
+    </div>
+    <div class="frame theme-shot"><img id="themeImg" src="assets/screens/01-main.png" width="1440" height="900" loading="lazy" alt="Aurora theme"></div>
+  </section>
+
+  <section id="screens" class="wrap">
+    <div class="kicker">Screenshots</div>
+    <h2>A closer look.</h2>
+    <p class="sub">Click any screenshot to enlarge it.</p>
+    <div class="gallery" id="gallery">
+      <figure><button data-cap="Settings — themes, fonts and glass"><img src="assets/screens/02-settings.png" width="1440" height="900" loading="lazy" alt="Settings panel with themes and fonts"></button><figcaption>Themes, fonts and glass controls</figcaption></figure>
+      <figure><button data-cap="Command palette (Ctrl+K)"><img src="assets/screens/04-command-palette.png" width="1440" height="900" loading="lazy" alt="Command palette"></button><figcaption>Command palette</figcaption></figure>
+      <figure><button data-cap="Quick replies"><img src="assets/screens/05-quick-replies.png" width="1440" height="900" loading="lazy" alt="Quick replies panel"></button><figcaption>Quick replies</figcaption></figure>
+      <figure><button data-cap="Schedule a message"><img src="assets/screens/06-schedule.png" width="1440" height="900" loading="lazy" alt="Schedule message panel"></button><figcaption>Scheduled messages</figcaption></figure>
+      <figure><button data-cap="Private notes per chat"><img src="assets/screens/07-notes.png" width="1440" height="900" loading="lazy" alt="Private notes panel"></button><figcaption>Private chat notes</figcaption></figure>
+      <figure><button data-cap="Privacy blur"><img src="assets/screens/08-privacy-blur.png" width="1440" height="900" loading="lazy" alt="Privacy blur hides chats and messages"></button><figcaption>Privacy blur</figcaption></figure>
+      <figure><button data-cap="App lock"><img src="assets/screens/09-app-lock.png" width="1440" height="900" loading="lazy" alt="App lock screen"></button><figcaption>App lock</figcaption></figure>
+      <figure><button data-cap="Settings — sending"><img src="assets/screens/13-settings-sending.png" width="1440" height="900" loading="lazy" alt="Sending settings"></button><figcaption>Sending options</figcaption></figure>
+      <figure><button data-cap="Settings — privacy"><img src="assets/screens/14-settings-privacy.png" width="1440" height="900" loading="lazy" alt="Privacy settings"></button><figcaption>Privacy settings</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="install" class="wrap">
+    <div class="kicker">Get started</div>
+    <h2>Up and running in a minute.</h2>
+    <div class="steps">
+      <div class="step"><h3>Download</h3><p>Grab <strong>Glasschat-Setup</strong> (installer) or <strong>Glasschat-Portable</strong> (no install) from <a href="https://github.com/MaxSpecterZero/glasschat/releases/latest">Releases</a>.</p></div>
+      <div class="step"><h3>Run it</h3><p>The build isn't code-signed, so Windows SmartScreen may ask — choose <em>More info › Run anyway</em>.</p></div>
+      <div class="step"><h3>Link your phone</h3><p>Scan the QR code in WhatsApp › <em>Linked devices</em>, exactly like on web.whatsapp.com.</p></div>
+    </div>
+  </section>
+
+  <section id="shortcuts" class="wrap">
+    <div class="kicker">Keyboard first</div>
+    <h2>Shortcuts</h2>
+    <div class="cols">
+      <table><tbody>
+        <tr><td>Command palette</td><td><kbd>Ctrl+K</kbd></td></tr>
+        <tr><td>Send files as documents</td><td><kbd>Ctrl+Shift+D</kbd></td></tr>
+        <tr><td>Paste image as document</td><td><kbd>Ctrl+Shift+V</kbd></td></tr>
+        <tr><td>Snip &amp; send</td><td><kbd>Ctrl+Shift+S</kbd></td></tr>
+        <tr><td>Quick replies · insert 1–9</td><td><kbd>Ctrl+Shift+Q</kbd> <kbd>Alt+1…9</kbd></td></tr>
+        <tr><td>Chat notes</td><td><kbd>Ctrl+Shift+N</kbd></td></tr>
+      </tbody></table>
+      <table><tbody>
+        <tr><td>Lock now</td><td><kbd>Ctrl+L</kbd></td></tr>
+        <tr><td>Privacy blur</td><td><kbd>Ctrl+Shift+P</kbd></td></tr>
+        <tr><td>Focus · Always on top · Mini</td><td><kbd>Ctrl+Shift+F</kbd> <kbd>T</kbd> <kbd>M</kbd></td></tr>
+        <tr><td>Bold · Italic (selected text)</td><td><kbd>Ctrl+B</kbd> <kbd>Ctrl+I</kbd></td></tr>
+        <tr><td>Open chat 1–9</td><td><kbd>Ctrl+1…9</kbd></td></tr>
+        <tr><td>Show / hide from anywhere</td><td><kbd>Ctrl+Alt+W</kbd></td></tr>
+      </tbody></table>
+    </div>
+  </section>
+
+  <section id="faq" class="wrap">
+    <div class="kicker">FAQ</div>
+    <h2>Questions</h2>
+    <details><summary>Is Glasschat official?</summary><p>No. It's an independent, open-source project and is not affiliated with, endorsed by or sponsored by WhatsApp or Meta. It loads the official web.whatsapp.com page.</p></details>
+    <details><summary>Is it safe? Where do my messages go?</summary><p>Your messages stay end-to-end encrypted by WhatsApp. Glasschat has no server and no analytics. The page runs sandboxed; settings, notes and your PIN hash stay on your PC. The full source is on GitHub.</p></details>
+    <details><summary>Does it use bots or unofficial APIs?</summary><p>No — it's the normal WhatsApp Web page with a different look and helper tools. Scheduled messages are typed into the open page at the time you choose.</p></details>
+    <details><summary>Something broke after a WhatsApp update.</summary><p>WhatsApp changes its web page often. Please <a href="https://github.com/MaxSpecterZero/glasschat/issues/new/choose">open an issue</a>; meanwhile you can patch it with Custom CSS in Settings › Extensions.</p></details>
+    <details><summary>Mac or Linux?</summary><p>Glasschat currently targets Windows 10 and 11 (it uses the Windows 11 glass backdrop). It's built with Electron, so ports are possible — contributions welcome.</p></details>
+  </section>
+
+  <section id="credits" class="wrap">
+    <div class="kicker">References &amp; credits</div>
+    <h2>Built on great open source.</h2>
+    <div class="refs">
+      <a class="ref" href="https://www.electronjs.org/"><b>Electron</b><span>Desktop runtime</span></a>
+      <a class="ref" href="https://www.electron.build/"><b>electron-builder</b><span>Installer &amp; portable builds</span></a>
+      <a class="ref" href="https://fontsource.org/"><b>Fontsource</b><span>Self-hosted font packages</span></a>
+      <a class="ref" href="https://github.com/MaxSpecterZero/glasschat/releases"><b>Releases</b><span>All versions &amp; changelog</span></a>
+      <a class="ref" href="https://rsms.me/inter/"><b>Inter</b><span>Default typeface · OFL</span></a>
+      <a class="ref" href="https://learn.microsoft.com/windows/apps/design/style/acrylic"><b>Acrylic material</b><span>Windows 11 design guidance</span></a>
+      <a class="ref" href="https://web.whatsapp.com/"><b>WhatsApp Web</b><span>The page Glasschat wraps</span></a>
+      <a class="ref" href="https://keepachangelog.com/"><b>Keep a Changelog</b><span>Changelog format</span></a>
+      <a class="ref" href="https://www.contributor-covenant.org/"><b>Contributor Covenant</b><span>Code of conduct</span></a>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="final">
+      <h2>Make WhatsApp feel like yours.</h2>
+      <p class="sub" style="margin:0 auto var(--s4)">Free forever, open source, and it takes a minute to set up.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/MaxSpecterZero/glasschat/releases/latest"><svg class="i"><use href="#i-dl"/></svg>Download for Windows</a>
+        <a class="btn" href="https://github.com/MaxSpecterZero/glasschat"><svg class="i"><use href="#i-gh"/></svg>Star on GitHub</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Glasschat contributors · <a href="https://github.com/MaxSpecterZero/glasschat/blob/main/LICENSE">MIT license</a> · <a href="https://github.com/MaxSpecterZero/glasschat/blob/main/CHANGELOG.md">Changelog</a> · <a href="https://github.com/MaxSpecterZero/glasschat/blob/main/SECURITY.md">Security</a></span>
+    <span>Not affiliated with WhatsApp or Meta. “WhatsApp” is a trademark of its owner.</span>
+  </div>
+</footer>
+
+<dialog id="lb" aria-label="Screenshot">
+  <button class="x" aria-label="Close" onclick="this.closest('dialog').close()">×</button>
+  <img id="lbImg" alt="">
+  <p id="lbCap"></p>
+</dialog>
+
+<script>
+  // theme tabs
+  const tabs = document.querySelectorAll('.tabs button');
+  const themeImg = document.getElementById('themeImg');
+  tabs.forEach(b => b.addEventListener('click', () => {
+    tabs.forEach(t => t.setAttribute('aria-selected', String(t === b)));
+    themeImg.src = b.dataset.src; themeImg.alt = b.dataset.alt;
+  }));
+  // lightbox
+  const lb = document.getElementById('lb'), lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap');
+  document.querySelectorAll('#gallery button').forEach(b => b.addEventListener('click', () => {
+    const img = b.querySelector('img'); lbImg.src = img.src; lbImg.alt = img.alt; lbCap.textContent = b.dataset.cap; lb.showModal();
+  }));
+  lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+</script>
+</body>
+</html>

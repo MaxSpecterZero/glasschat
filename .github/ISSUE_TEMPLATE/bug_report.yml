@@ -1,0 +1,49 @@
+name: Bug report
+description: Something doesn't work or looks broken
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! ⚠️ **Please don't post screenshots of real chats, names or phone numbers.** Blur them, or turn on Privacy blur (`Ctrl+Shift+P`) first.
+  - type: input
+    id: version
+    attributes:
+      label: Glasschat version
+      description: Settings › About
+      placeholder: "1.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: build
+    attributes:
+      label: Build
+      options: [Installer, Portable, From source]
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 24H2"
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a chat
+        2. Drag a PDF onto the window
+        3. Click "Send as Document"
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors (optional)
+      description: "`Ctrl+Shift+I` › Console. Remove anything personal."
+      render: text
